@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct OtherView: View {
+struct OthersView: View {
     @EnvironmentObject var store: PasswordStore
     @State private var searchText = ""
     @State private var showingAddSheet = false

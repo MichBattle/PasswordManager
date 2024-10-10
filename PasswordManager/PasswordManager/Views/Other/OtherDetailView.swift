@@ -6,13 +6,49 @@ struct OtherDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var isEditing = false
     @State private var showingSaveAlert = false
+    @State private var showPassword = false
+    
+    var passwordStrength: PasswordStrength {
+        PasswordEvaluator.evaluateStrength(of: other.password)
+    }
     
     var body: some View {
         Form {
             Section(header: Text("Dettagli")) {
                 if isEditing {
                     TextField("Nome", text: $other.name)
-                    SecureField("Password", text: $other.password)
+                    HStack {
+                        if showPassword {
+                            TextField("Password", text: $other.password)
+                        } else {
+                            SecureField("Password", text: $other.password)
+                        }
+                        Button(action: {
+                            showPassword.toggle()
+                        }) {
+                            Image(systemName: showPassword ? "eye.slash" : "eye")
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .padding(.leading, 8)
+                        .accessibilityLabel(showPassword ? "Nascondi Password" : "Mostra Password")
+                        
+                        // Pulsante per generare la password
+                        Button(action: {
+                            other.password = PasswordGenerator.generate()
+                        }) {
+                            Image(systemName: "wand.and.stars")
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .padding(.leading, 8)
+                        .accessibilityLabel("Genera Password")
+                    }
+                    HStack {
+                        Text("Forza Password")
+                        Spacer()
+                        Text(passwordStrength.rawValue)
+                            .foregroundColor(passwordStrength.color)
+                            .fontWeight(.bold)
+                    }
                 } else {
                     HStack {
                         Text("Nome")
@@ -23,8 +59,28 @@ struct OtherDetailView: View {
                     HStack {
                         Text("Password")
                         Spacer()
-                        SecureField("Password", text: .constant(other.password))
-                            .disabled(true)
+                        if showPassword {
+                            Text(other.password)
+                                .foregroundColor(.gray)
+                        } else {
+                            SecureField("Password", text: .constant(other.password))
+                                .disabled(true)
+                        }
+                        Button(action: {
+                            showPassword.toggle()
+                        }) {
+                            Image(systemName: showPassword ? "eye.slash" : "eye")
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .padding(.leading, 8)
+                        .accessibilityLabel(showPassword ? "Nascondi Password" : "Mostra Password")
+                    }
+                    HStack {
+                        Text("Forza Password")
+                        Spacer()
+                        Text(passwordStrength.rawValue)
+                            .foregroundColor(passwordStrength.color)
+                            .fontWeight(.bold)
                     }
                 }
             }

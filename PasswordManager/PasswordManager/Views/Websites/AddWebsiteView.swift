@@ -8,6 +8,7 @@ struct AddWebsiteView: View {
     @State private var usernameOrEmail = ""
     @State private var password = ""
     @State private var url = ""
+    @State private var showPasswordField = false
     
     var body: some View {
         NavigationView {
@@ -15,7 +16,31 @@ struct AddWebsiteView: View {
                 Section(header: Text("Dettagli Sito")) {
                     TextField("Nome Sito", text: $siteName)
                     TextField("Username/Email", text: $usernameOrEmail)
-                    SecureField("Password", text: $password)
+                    HStack {
+                        if showPasswordField {
+                            TextField("Password", text: $password)
+                        } else {
+                            SecureField("Password", text: $password)
+                        }
+                        Button(action: {
+                            showPasswordField.toggle()
+                        }) {
+                            Image(systemName: showPasswordField ? "eye.slash" : "eye")
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .padding(.leading, 8)
+                        .accessibilityLabel(showPasswordField ? "Nascondi Password" : "Mostra Password")
+                        
+                        // Pulsante per generare la password
+                        Button(action: {
+                            password = PasswordGenerator.generate()
+                        }) {
+                            Image(systemName: "wand.and.stars")
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                        .padding(.leading, 8)
+                        .accessibilityLabel("Genera Password")
+                    }
                     TextField("URL", text: $url)
                         .keyboardType(.URL)
                         .autocapitalization(.none)

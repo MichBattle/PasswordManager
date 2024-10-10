@@ -13,7 +13,7 @@ struct MainView: View {
                     Label("Siti Web", systemImage: "globe")
                 }
             
-            OtherView()
+            OthersView()
                 .tabItem {
                     Label("Altro", systemImage: "lock.shield")
                 }

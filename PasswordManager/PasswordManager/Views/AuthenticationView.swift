@@ -3,6 +3,8 @@ import LocalAuthentication
 
 struct AuthenticationView: View {
     @Binding var isUnlocked: Bool
+    @Binding var showErrorAlert: Bool
+    @Binding var errorMessage: String
     
     var body: some View {
         VStack {
@@ -33,24 +35,29 @@ struct AuthenticationView: View {
     
     func authenticate() {
         let context = LAContext()
-        var error: NSError?
+        var authError: NSError?
+        let reason = "Accedi per gestire le tue password"
         
-        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-            let reason = "Accedi per gestire le tue password"
-            
-            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
+        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &authError) {
+            print("Il dispositivo supporta l'autenticazione.")
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, evaluateError in
                 DispatchQueue.main.async {
                     if success {
+                        print("Autenticazione riuscita.")
                         isUnlocked = true
                     } else {
-                        // Autenticazione fallita
-                        // Puoi gestire l'errore qui se necessario
+                        // Autenticazione fallita, mostra il messaggio di errore
+                        errorMessage = evaluateError?.localizedDescription ?? "Autenticazione fallita."
+                        showErrorAlert = true
+                        print("Autenticazione fallita: \(errorMessage)")
                     }
                 }
             }
         } else {
-            // Autenticazione non disponibile
-            // Puoi gestire l'errore qui se necessario
+            // L'autenticazione non è disponibile, mostra il messaggio di errore
+            errorMessage = authError?.localizedDescription ?? "L'autenticazione biometrica non è disponibile."
+            showErrorAlert = true
+            print("Autenticazione biometrica non disponibile: \(errorMessage)")
         }
     }
 }

@@ -1,41 +1,22 @@
 import SwiftUI
-import LocalAuthentication
 
 struct ContentView: View {
     @State private var isUnlocked = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     var body: some View {
         Group {
             if isUnlocked {
                 MainView()
             } else {
-                AuthenticationView(isUnlocked: $isUnlocked)
+                AuthenticationView(isUnlocked: $isUnlocked, showErrorAlert: $showErrorAlert, errorMessage: $errorMessage)
             }
         }
-        .onAppear(perform: authenticate)
-    }
-    
-    func authenticate() {
-        let context = LAContext()
-        var error: NSError?
-        
-        // Verifica se l'autenticazione biometrica è disponibile
-        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-            let reason = "Accedi per gestire le tue password"
-            
-            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
-                DispatchQueue.main.async {
-                    if success {
-                        isUnlocked = true
-                    } else {
-                        // Autenticazione fallita
-                        // Puoi gestire l'errore qui se necessario
-                    }
-                }
-            }
-        } else {
-            // Autenticazione non disponibile
-            // Puoi gestire l'errore qui se necessario
+        .alert(isPresented: $showErrorAlert) {
+            Alert(title: Text("Errore di Autenticazione"),
+                  message: Text(errorMessage),
+                  dismissButton: .default(Text("OK")))
         }
     }
 }
